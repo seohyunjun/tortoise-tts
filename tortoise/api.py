@@ -213,7 +213,8 @@ class TextToSpeech:
         self.models_dir = models_dir
         self.autoregressive_batch_size = pick_best_batch_size_for_gpu() if autoregressive_batch_size is None else autoregressive_batch_size
         self.enable_redaction = enable_redaction
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        #self.device = torch.device('mps' if torch.backends.mps.is_available() else 'cpu')
+        self.device = 'cpu'
         if self.enable_redaction:
             self.aligner = Wav2VecAlignment()
 
@@ -281,7 +282,8 @@ class TextToSpeech:
                 # The diffuser operates at a sample rate of 24000 (except for the latent inputs)
                 sample = torchaudio.functional.resample(sample, 22050, 24000)
                 sample = pad_or_truncate(sample, 102400)
-                cond_mel = wav_to_univnet_mel(sample.to(self.device), do_normalization=False, device=self.device)
+                #cond_mel = wav_to_univnet_mel(sample.to(self.device), do_normalization=False, device=self.device)
+                cond_mel = wav_to_univnet_mel(sample.to(self.device), do_normalization=False)
                 diffusion_conds.append(cond_mel)
             diffusion_conds = torch.stack(diffusion_conds, dim=1)
 
